@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 import time
 from gradcam import *
-from vqa import *
+from RAGService import analyze_retinal_image_and_heatmap
 
 st.title("Diabetic Retinopathy Screening Tool")
 "This application demonstrates how an AI-powered screening tool might work."
@@ -59,8 +59,9 @@ if st.button("process"):
             st.image('heatmap.png')
 
         with tab3:
+
             with st.spinner("In progress"):
-                #if st.button("Generate explanation"):
+                if st.button("Generate explanation"):
                     try:
                         heatmap = Image.open('heatmap.png').convert('RGB')
                         text = analyze_retinal_image_and_heatmap(image, heatmap, results)
@@ -68,6 +69,7 @@ if st.button("process"):
 
                     except Exception as e:
                         st.error(f"❌ Error getting AI response: {str(e)}")
+             
 
 st.button("reset")
 

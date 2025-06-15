@@ -5,6 +5,7 @@ import base64
 import io
 from PIL import Image
 import matplotlib.pyplot as plt
+import rag
 
 # this is the old way to load the api key - load from .env file / os env variable
 # import os
@@ -43,7 +44,7 @@ def encode_image_to_base64(image):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
 
-def analyze_retinal_image_and_heatmap(original_image, heatmap_figure, prediction_results, patient_age=None, diabetes_duration=None):
+def analyze_retinal_image_and_heatmap(original_image, heatmap_figure, prediction_results, useRag, patient_age=None, diabetes_duration=None):
     print(prediction_results)
     """Analyze retinal image with heatmap using GPT-4o-mini vision capabilities"""
     api_url = "https://api.openai.com/v1/chat/completions"
@@ -66,28 +67,55 @@ def analyze_retinal_image_and_heatmap(original_image, heatmap_figure, prediction
     if patient_age and diabetes_duration:
         patient_info = f"\nPatient Information:\n- Age: {patient_age} years\n- Duration of diabetes: {diabetes_duration} years\n"
     
+    # Setup RAG
+    ragSys = rag()
+    ragSys.add_medical_documents("documents")
+
+
+    medical_context = ""
+    if useRag:
+        try:
+            search_query = f"diabetic retinopathy grade {prediction_results['value']} {prediction_results['class']} analysis heatmap fundus examination"
+            medical_context = rag.retrieve_relevant_context(search_query, max_context_length=2000)
+        except Exception as e:
+            print(f"Warning: Could not retrieve medical context: {e}")
+
     prompt = f"""You are an expert ophthalmologist AI assistant analyzing retinal images for diabetic retinopathy.
 
-{patient_info}
-AI Model Results:
-- Predicted Class: {prediction_results['class']}
-- Severity Grade: {prediction_results['value']}
-- Confidence: {prediction_results['probability']:.2%}
+    {patient_info}
+    AI Model Results:
+    - Predicted Class: {prediction_results['class']}
+    - Severity Grade: {prediction_results['value']}
+    - Confidence: {prediction_results['probability']:.2%}
 
-I'm showing you two images:
-1. The original retinal fundus photograph
-2. A GradCAM heatmap visualization showing which areas the AI model focused on for its prediction
+    I'm showing you two images:
+    1. The original retinal fundus photograph
+    2. A GradCAM heatmap visualization showing which areas the AI model focused on for its prediction """
 
-Please provide a comprehensive analysis including:
+    if medical_context:
+        enhanced_prompt = f"""{prompt}
+    
+    RELEVANT MEDICAL LITERATURE:
+    {medical_context}
 
-1. **Clinical Assessment**: Explain what the AI prediction means in medical terms
-2. **Heatmap Analysis**: Describe what the highlighted areas in the heatmap represent and their clinical significance
-3. **Key Findings**: Identify specific retinal features visible in the image that support the diagnosis
-4. **Patient Explanation**: Provide a clear, patient-friendly explanation of the findings
-5. **Recommendations**: Suggest appropriate next steps based on the severity level
-6. **Monitoring**: Advise on follow-up frequency and warning signs to watch for
+    Please provide a comprehensive analysis including:
 
-Be thorough but accessible, and highlight any areas of concern that require immediate attention."""
+    1. **Clinical Assessment**: Explain what the AI prediction means in medical terms
+    2. **Heatmap Analysis**: Describe what the highlighted areas in the heatmap represent and their clinical significance
+    3. **Key Findings**: Identify specific retinal features visible in the image that support the diagnosis
+    4. **Patient Explanation**: Provide a clear, patient-friendly explanation of the findings
+    5. **Recommendations**: Suggest appropriate next steps based on the severity level
+    6. **Monitoring**: Advise on follow-up frequency and warning signs to watch for
+
+    **IMPORTANT FORMATTING INSTRUCTIONS:**
+    - When referencing literature or research findings, use the format: ***According to the literature, [finding]*** or ***Research indicates that [finding]*** or ***Studies show that [finding]***
+    - Make all literature citations bold and italic using ***text*** format
+    - This will help patients easily identify evidence-based information
+    - Example: ***According to recent studies, GradCAM highlighted areas typically indicate microaneurysms which are early signs of diabetic retinopathy***
+
+    When relevant, cite the medical literature to support your analysis and recommendations.
+        
+    Be thorough but accessible, and highlight any areas of concern that require immediate attention. """
 
     data = {
         "model": "gpt-4o-mini",
