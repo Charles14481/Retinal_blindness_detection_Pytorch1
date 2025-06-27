@@ -13,9 +13,9 @@ from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'services'))
 
 try:
-    from services.rag_service import RAGService
-    from services.document_processor import DocumentProcessor
-    from services.vector_store import VectorStoreService
+    from project_dr.Retinal_blindness_detection_Pytorch.services.ragservice import RAGService
+    from project_dr.Retinal_blindness_detection_Pytorch.services.documentprocessor import DocumentProcessor
+    from project_dr.Retinal_blindness_detection_Pytorch.services.simplevectorstore import SimpleVectorStore
 except ImportError as e:
     print(f"Error importing services: {e}")
     print("Please ensure all required packages are installed.")

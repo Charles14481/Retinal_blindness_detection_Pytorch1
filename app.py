@@ -3,8 +3,11 @@ import time
 from PIL import Image
 import numpy as np
 import time
-from gradcam import *
-from RAGService import analyze_retinal_image_and_heatmap
+import torchvision
+from torchvision import datasets, transforms, models
+from services.visualizationservice import VisualizationService
+from services.ragservice import RAGService, analyze_retinal_image_and_heatmap
+from gradcam import load_model, inference
 
 st.title("Diabetic Retinopathy Screening Tool")
 "This application demonstrates how an AI-powered screening tool might work."
@@ -41,34 +44,48 @@ if uploaded_file is not None:
     st.write("Image successfully uploaded!")
 
 if st.button("process"):
-        with st.spinner("In progress"):
-            image = Image.open(uploaded_file).convert('RGB')
-            model =  load_model("/home/charles/project_dr/Retinal_blindness_detection_Pytorch/classifier.pt")
-            st.spinner("In progress")
-            results = test(uploaded_file)
-            tab1, tab2, tab3 = st.tabs(["Results", "Heatmap", "AI Explanation"])
+    with st.spinner("In progress"):
+        image = Image.open(uploaded_file).convert('RGB')
+        model = load_model("/home/charles/project_dr/Retinal_blindness_detection_Pytorch/classifier.pt")
+        st.spinner("In progress")
 
-        with tab1:
-            "Here are your results:"
-            "Class: " + str(results["class"])
-            "Severity: " + str(results["value"])
-            "Probability: " + str(results["probability"])   
+        test_transforms = torchvision.transforms.Compose([
+            torchvision.transforms.Resize((224, 224)),
+            torchvision.transforms.RandomHorizontalFlip(p=0.5),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+        ])
+        classes = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR']
+        results = inference(model, uploaded_file, test_transforms, classes)
 
-        with tab2:
-            "Here is your heatmap:"
-            st.image('heatmap.png')
+        tab1, tab2, tab3 = st.tabs(["Results", "Heatmap", "AI Explanation"])
 
-        with tab3:
+    with tab1:
+        "Here are your results:"
+        "Class: " + str(results["class"])
+        "Severity: " + str(results["value"])
+        "Probability: " + str(results["probability"])   
 
+    with tab2:
+        vs = VisualizationService()
+        image = vs.generate_gradcam_visualization(model, uploaded_file).savefig("heatmap.png", format='png')
+        "Here is your heatmap:"
+        st.image('heatmap.png')
+
+    with tab3:
+        if st.button("Generate explanation"):
             with st.spinner("In progress"):
-                if st.button("Generate explanation"):
-                    try:
-                        heatmap = Image.open('heatmap.png').convert('RGB')
-                        text = analyze_retinal_image_and_heatmap(image, heatmap, results)
-                        st.write(text)
+                try:
+                    # print("Trying to generate AI explanation")
+                    rag = RAGService()
+                    # print(rag)
+                    rag.initialize_knowledge_base()
+                    heatmap = Image.open('heatmap.png').convert('RGB')
+                    text = rag.analyze_retinal_image_and_heatmap(image, heatmap, results)
+                    st.write(text)
 
-                    except Exception as e:
-                        st.error(f"❌ Error getting AI response: {str(e)}")
+                except Exception as e:
+                    st.error(f"❌ Error getting AI response: {str(e)}")
              
 
 st.button("reset")
