@@ -1,3 +1,8 @@
+"""
+Gradcam
+Inference features of model with heatmap visualization feature
+"""
+
 # Importing all packages 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -140,7 +145,7 @@ def visualize_gradcam(image_path, model, transform, device):
     plt.savefig('heatmap.png')
 
 def test(path):
-    model = load_model('/home/charles/project_dr/Retinal_blindness_detection_Pytorch/classifier.pt')
+    model = load_model('classifier.pt')
     print("Model loaded Successfully")
     classes = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR']
     test_transforms = torchvision.transforms.Compose([
@@ -155,7 +160,7 @@ def test(path):
     return dict
 
 if __name__ == '__main__':
-    test_dir = '/home/charles/project_dr/Retinal_blindness_detection_Pytorch/sampleimages'
+    test_dir = 'sampleimages'
     folders = os.listdir(test_dir)
     for num in range(len(folders)):
         path = test_dir+"/"+folders[num]

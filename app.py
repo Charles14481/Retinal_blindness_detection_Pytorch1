@@ -11,9 +11,10 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from gradcam import load_model, inference
 
-st.title("Diabetic Retinopathy Screening Tool")
+st.title("MedSense Diagnostics")
+st.markdown("## Diabetic Retinopathy Screening Tool")
 "This application demonstrates how an AI-powered screening tool might work."
-st.markdown('## AI-Assisted Screening for Early Detection')
+st.markdown('### AI-Assisted Screening for Early Detection')
 
 # initialize session state for patient information
 if 'patient_age' not in st.session_state:
@@ -22,6 +23,10 @@ if 'diabetes_duration' not in st.session_state:
     st.session_state.diabetes_duration = None
 
 with st.sidebar:
+    st.header("About the company")
+    "MedSense makes portable diagnostic tools for quick detection of common illnesses in remote or underserved areas. Our dream is a world where access to quality diagnostics doesn’t depend on geography." 
+
+    st.divider()
     st.header("📋 Patient Information")
     st.markdown("*Optional: Provide patient details for personalized analysis*")
     
