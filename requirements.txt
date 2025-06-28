@@ -11,3 +11,4 @@ python-socketio==2.0.0
 scikit-learn
 torch==1.13.1
 torchvision
+opencv-python
