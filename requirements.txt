@@ -8,7 +8,8 @@ python-decouple==3.1
 python-engineio==3.11.1
 python-slugify==3.0.4
 python-socketio==2.0.0
+scikit-image
 scikit-learn
 torch==1.13.1
 torchvision
-opencv-python
+opencv-python==3.4.18.65
