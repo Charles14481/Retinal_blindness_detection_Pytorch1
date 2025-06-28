@@ -62,16 +62,17 @@ def inference(model, file, transform, classes):
     device = torch.device("cpu")
     model.eval()
     with torch.no_grad():
-        print('Passing your image to the model....')
+        print('Passing your image to the model...')
         out = model(img.to(device))
         ps = torch.exp(out)
         top_p, top_class = ps.topk(1, dim=1)
         value = top_class.item()
         probability = top_p.item()
+        print("--- Inference Results ---")
         print("Predicted Severity Value: ", value)
         print("class is: ", classes[value])
         print("probability is: ", probability)
-        print('Your image is printed:')
+        print("-------------------------")
         return {
             "class": classes[value],
             "value": value,

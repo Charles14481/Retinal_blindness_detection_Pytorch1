@@ -7,14 +7,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import rag
 
-# this is the old way to load the api key - load from .env file / os env variable
-# import os
-# from dotenv import load_dotenv
-
-# Load environment variables
-# load_dotenv()
-
-
 # Get API key from configuration file
 def get_api_key():
     try:
@@ -66,15 +58,12 @@ def analyze_retinal_image_and_heatmap(original_image, heatmap_figure, prediction
     patient_info = ""
     if patient_age and diabetes_duration:
         patient_info = f"\nPatient Information:\n- Age: {patient_age} years\n- Duration of diabetes: {diabetes_duration} years\n"
-    
-    # Setup RAG
-    ragSys = rag()
-    ragSys.add_medical_documents("documents")
-
 
     medical_context = ""
     if useRag:
         try:
+            ragSys = rag()
+            ragSys.add_medical_documents("documents")
             search_query = f"diabetic retinopathy grade {prediction_results['value']} {prediction_results['class']} analysis heatmap fundus examination"
             medical_context = rag.retrieve_relevant_context(search_query, max_context_length=2000)
         except Exception as e:

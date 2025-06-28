@@ -1,3 +1,8 @@
+"""
+Visualization Service
+Handles visualization operations like GradCAM with accuracy improvements
+"""
+
 import torch
 import torchvision
 from PIL import Image
@@ -11,8 +16,6 @@ import warnings
 
 
 class VisualizationService:
-    """Enhanced service for handling visualization operations like GradCAM with accuracy improvements"""
-    
     def __init__(self):
         self.device = torch.device("cpu")
         self.classes = ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR']
@@ -224,8 +227,6 @@ class VisualizationService:
         
         plt.tight_layout()
         return fig
-    
-
     
     def validate_model_compatibility(self, model):
         """Validate that the model is compatible with GradCAM analysis"""

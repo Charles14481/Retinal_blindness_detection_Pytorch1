@@ -127,9 +127,6 @@ class RAGService:
         if not self.api_key:
             raise ValueError("API key not found")
 
-        # Initialize RAG service
-        # rag = self.initialize_rag()
-
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
@@ -215,7 +212,7 @@ class RAGService:
         }
         
         response = requests.post(api_url, headers=headers, data=json.dumps(data))
-    
+        print("4")
         if response.status_code == 200:
             return response.json()["choices"][0]["message"]["content"]
         else:
