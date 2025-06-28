@@ -87,7 +87,7 @@ if st.session_state["process"]:
     with st.spinner("In progress..."):
         image = Image.open(uploaded_file).convert('RGB')
         vs = VisualizationService()
-        model = load_model("/home/charles/project_dr/Retinal_blindness_detection_Pytorch/classifier.pt")
+        model = load_model("classifier.pt")
 
         if (st.session_state["heatmap"] is None):
             print("Heatmap was None. Generating heatmap")

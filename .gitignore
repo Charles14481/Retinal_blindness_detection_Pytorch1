@@ -2,4 +2,4 @@ config
 Extra
 classifier.pt
 __pycache__
-heatmap
+heatmap.png

@@ -212,7 +212,6 @@ class RAGService:
         }
         
         response = requests.post(api_url, headers=headers, data=json.dumps(data))
-        print("4")
         if response.status_code == 200:
             return response.json()["choices"][0]["message"]["content"]
         else:
